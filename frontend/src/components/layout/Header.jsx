@@ -8,26 +8,30 @@ const Header = () => {
   return (
     <nav className="bg-main p-4 w-full text-green-3 flex justify-between">
       <div>
-        <h1>Budgeting & Wellness Tool</h1>
+        <h1 className="text-xl font-serif">Budgeting & Wellness Tool</h1>
       </div>
       <div className="flex flex-col sm:flex-row gap-4">
-        <Link to="/user-health-score">
-          <button className="p-1 px-3 rounded-md border border-transparent hover:border-green-5">
-            Health Score
-          </button>
-        </Link>
-        <Link to="/dashboard">
-          <button className="p-1 px-3 rounded-md border border-transparent hover:border-green-5">
-            Dashboard
-          </button>
-        </Link>
-        <Link to="/user-portfolio">
-          <button className="p-1 px-3 rounded-md border border-transparent hover:border-green-5">
-            Portfolio
-          </button>
-        </Link>
+        {loggedUser && (
+          <>
+            <Link to="/user-health-score">
+              <button className="text-center p-1 px-3 rounded-md border border-transparent hover:border-green-5">
+                Health Score
+              </button>
+            </Link>
+            <Link to="/dashboard">
+              <button className="text-center p-1 px-3 rounded-md border border-transparent hover:border-green-5">
+                Dashboard
+              </button>
+            </Link>
+            <Link to="/user-portfolio">
+              <button className="text-center p-1 px-3 rounded-md border border-transparent hover:border-green-5">
+                Portfolio
+              </button>
+            </Link>
+          </>
+        )}
         {loggedUser ? (
-          <div className="flex gap-3">
+          <div className="flex flex-col text-center sm:flex-row gap-3">
             <Link to="/user-profile">
               <button className="p-1 px-3 rounded-md border border-transparent hover:border-green-5">
                 Profile

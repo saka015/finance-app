@@ -14,33 +14,43 @@ const hashedPassword = async (password) => {
   const hashed = await bcrypt.hash(password, salt);
   return hashed;
 };
-
 const createUser = async (req, res) => {
   try {
     const errors = validationResult(req);
-    if (!errors.isEmpty())
+    if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
+    }
 
     const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: "Email already exists" });
 
-    const hashedPasswordValue = await hashedPassword(password);
+    // Check if the email already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = new User({
       name,
       email,
-      password: hashedPasswordValue,
+      password: hashedPassword,
+      // Remove 'month' field - it's not needed here
     });
 
     const savedUser = await user.save();
-    res
-      .status(201)
-      .json({ message: "User created successfully", user: savedUser });
+
+    // Generate JWT (example using jsonwebtoken)
+    const token = jwt.sign({ userId: savedUser._id }, process.env.JWT_SECRET); //JWT_SECRET should be set in your environment.
+
+    res.status(201).json({ message: "User created successfully", token });
   } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ message: "Failed to create user" });
+    console.error("Error creating user:", error); //Keep this for debugging.
+    let message = "Failed to create user";
+    if (error.name === "ValidationError") {
+      message = error.message; // More details if validation fails on the database level.
+    }
+    res.status(500).json({ message });
   }
 };
 
@@ -81,7 +91,7 @@ const loginUser = async (req, res) => {
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role,
+          months: user.months,
         },
         token,
       },
@@ -97,7 +107,7 @@ const loginUser = async (req, res) => {
 
 const getUserData = async (req, res) => {
   try {
-    const userId = req.user.id; // From the token's decoded data
+    const userId = req.User?.id; // From the token's decoded data
     const user = await User.findById(userId);
 
     if (!user) {

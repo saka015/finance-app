@@ -1,61 +1,66 @@
-// src/components/PortfolioManagement/LiabilitiesAndDebts.js
 import React, { useState } from "react";
+import { message } from "antd";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
 
-const LiabilitiesAndDebts = () => {
+const LiabilitiesAndDebts = ({ month }) => {
   const { loggedUser } = useAuth();
+  const userId = loggedUser?.id;
 
-  const userId = loggedUser.id;
   const [liabilities, setLiabilities] = useState({
-    mortgage: "",
-    studentLoans: "",
-    personalLoans: "",
-    creditCardDebt: "",
-    autoLoans: "",
-    otherLiabilities: "",
+    mortgage: 0,
+    studentLoans: 0,
+    personalLoans: 0,
+    creditCardDebt: 0,
+    autoLoans: 0,
+    otherLiabilities: 0,
   });
 
-  const handleChange = (field, value) => {
-    setLiabilities((prevLiabilities) => ({
-      ...prevLiabilities,
-      [field]: value,
-    }));
+  const handleInputChange = (e, field) => {
+    const value = e.target.value.trim(); // Trim whitespace
+    const numericValue = parseInt(value, 10); //Parse as integer; NaN if not parseable.
+    setLiabilities({
+      ...liabilities,
+      [field]: isNaN(numericValue) ? 0 : numericValue,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token"); // Retrieve token from localStorage
     if (!token) {
-      console.error("No token found. User might not be logged in.");
+      message.error("You are not logged in.");
       return;
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/data/portfolio/${userId}`,
-        liabilities,
+      const response = await axios.put(
+        `http://localhost:5000/api/data/liabilities/${userId}/${month}`,
+        { ...liabilities },
         {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include token in Authorization header
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      console.log("Portfolio saved successfully:", response.data);
+      message.success("Liabilities and Debts updated successfully!");
+      console.log("Liabilities and debts updated:", response.data);
     } catch (error) {
-      console.error("Error saving portfolio:", error.response?.data || error);
+      console.error("Error updating liabilities and debts:", error);
+      message.error(
+        "Failed to update liabilities and debts. Please try again."
+      );
     }
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className=" flex justify-center flex-col sm:w-96 mx-auto bg-gray-800 p-6 rounded shadow-md"
+      className="flex flex-col sm:w-96 mx-auto bg-gray-800 p-6 rounded shadow-md"
     >
       <h2 className="text-2xl font-bold text-gray-200 mb-4">
         Liabilities and Debts
       </h2>
+
       <div className="mb-4">
         <label
           htmlFor="mortgage"
@@ -67,10 +72,11 @@ const LiabilitiesAndDebts = () => {
           type="number"
           id="mortgage"
           value={liabilities.mortgage}
-          onChange={(e) => handleChange("mortgage", e.target.value)}
+          onChange={(e) => handleInputChange(e, "mortgage")}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+
       <div className="mb-4">
         <label
           htmlFor="studentLoans"
@@ -82,10 +88,11 @@ const LiabilitiesAndDebts = () => {
           type="number"
           id="studentLoans"
           value={liabilities.studentLoans}
-          onChange={(e) => handleChange("studentLoans", e.target.value)}
+          onChange={(e) => handleInputChange(e, "studentLoans")}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+
       <div className="mb-4">
         <label
           htmlFor="personalLoans"
@@ -97,10 +104,11 @@ const LiabilitiesAndDebts = () => {
           type="number"
           id="personalLoans"
           value={liabilities.personalLoans}
-          onChange={(e) => handleChange("personalLoans", e.target.value)}
+          onChange={(e) => handleInputChange(e, "personalLoans")}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+
       <div className="mb-4">
         <label
           htmlFor="creditCardDebt"
@@ -112,10 +120,11 @@ const LiabilitiesAndDebts = () => {
           type="number"
           id="creditCardDebt"
           value={liabilities.creditCardDebt}
-          onChange={(e) => handleChange("creditCardDebt", e.target.value)}
+          onChange={(e) => handleInputChange(e, "creditCardDebt")}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+
       <div className="mb-4">
         <label
           htmlFor="autoLoans"
@@ -127,10 +136,11 @@ const LiabilitiesAndDebts = () => {
           type="number"
           id="autoLoans"
           value={liabilities.autoLoans}
-          onChange={(e) => handleChange("autoLoans", e.target.value)}
+          onChange={(e) => handleInputChange(e, "autoLoans")}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+
       <div className="mb-4">
         <label
           htmlFor="otherLiabilities"
@@ -142,10 +152,23 @@ const LiabilitiesAndDebts = () => {
           type="number"
           id="otherLiabilities"
           value={liabilities.otherLiabilities}
-          onChange={(e) => handleChange("otherLiabilities", e.target.value)}
+          onChange={(e) => handleInputChange(e, "otherLiabilities")}
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         />
       </div>
+
+      <div className="mb-2">
+        <label className="block text-gray-400 text-sm font-bold mb-1">
+          Month
+        </label>
+        <input
+          className="shadow appearance-none border rounded w-full py-2 px-3 text-green-500 capitalize leading-tight focus:outline-none focus:shadow-outline"
+          type="text"
+          value={month}
+          disabled
+        />
+      </div>
+
       <button
         type="submit"
         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"

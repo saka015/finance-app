@@ -1,187 +1,94 @@
-// src/components/PortfolioManagement/ExpenseDetails.js
 import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { message } from "antd";
 
-const ExpenseDetails = () => {
+const ExpenseDetails = ({ month }) => {
   const { loggedUser } = useAuth();
-
-  const userId = loggedUser.id;
-
+  const userId = loggedUser?.id;
   const [expenses, setExpenses] = useState({
-    housing: "",
-    utilities: "",
-    groceries: "",
-    transportation: "",
-    healthcare: "",
-    education: "",
-    entertainment: "",
-    otherExpenses: "",
+    housing: 0,
+    utilities: 0,
+    groceries: 0,
+    transportation: 0,
+    healthcare: 0,
+    education: 0,
+    entertainment: 0,
+    otherExpenses: 0,
   });
 
-  const handleChange = (field, value) => {
-    setExpenses((prevExpenses) => ({ ...prevExpenses, [field]: value }));
+  const handleInputChange = (e, field) => {
+    const value = parseInt(e.target.value, 10) || 0; // Safer parsing with a default to 0
+    setExpenses({ ...expenses, [field]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem("token"); // Retrieve token from localStorage
+    const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found. User might not be logged in.");
+      message.error("You are not logged in."); // Improved feedback for user
       return;
     }
-
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/data/expenses/${userId}`,
-        expenses,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include token in Authorization header
-          },
-        }
+      const response = await axios.put(
+        `http://localhost:5000/api/data/expenses/${userId}/${month}`, // Correct API endpoint for expenses
+        { ...expenses },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Portfolio saved successfully:", response.data);
+      console.log("Expense details saved successfully:", response.data);
+      message.success("Expense Details saved successfully!"); // Consistent message
     } catch (error) {
-      console.error("Error saving portfolio:", error.response?.data || error);
+      console.error("Error saving expense details:", error);
+      message.error("Failed to save expense details. Please try again."); // Consistent error message
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className=" flex justify-center flex-col flex justify-center flex-col sm:w-96 mx-auto bg-gray-800 p-6 rounded shadow-md"
-    >
-      <h2 className="text-2xl font-bold text-gray-200 mb-4">Expense Details</h2>
-      <div className="mb-4">
-        <label
-          htmlFor="housing"
-          className="block text-gray-400 text-sm font-bold mb-1"
+    <div className="flex flex-col sm:w-96 mx-auto bg-gray-800 p-6 rounded shadow-md">
+      <h2 className="text-xl font-bold text-gray-200 mb-4">Expense Details</h2>
+      <form onSubmit={handleSubmit}>
+        {/* Render inputs for each expense item */}
+        {[
+          "housing",
+          "utilities",
+          "groceries",
+          "transportation",
+          "healthcare",
+          "education",
+          "entertainment",
+          "otherExpenses",
+        ].map((field) => (
+          <div className="mb-2" key={field}>
+            <label className="block text-gray-400 text-sm font-bold mb-1">
+              {field.charAt(0).toUpperCase() + field.slice(1)}:
+            </label>
+            <input
+              type="text"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              value={expenses[field]}
+              onChange={(e) => handleInputChange(e, field)}
+            />
+          </div>
+        ))}
+        <div className="mb-2">
+          <label className="block text-gray-400 text-sm font-bold mb-1">
+            Month
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-green-500 capitalize leading-tight focus:outline-none focus:shadow-outline"
+            type="text"
+            value={month}
+            disabled
+          />
+        </div>
+        <button
+          type="submit"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
         >
-          Housing:
-        </label>
-        <input
-          type="number"
-          id="housing"
-          value={expenses.housing}
-          onChange={(e) => handleChange("housing", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="utilities"
-          className="block text-gray-400 text-sm font-bold mb-1"
-        >
-          Utilities:
-        </label>
-        <input
-          type="number"
-          id="utilities"
-          value={expenses.utilities}
-          onChange={(e) => handleChange("utilities", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      {/* Repeat for other expense types */}
-      <div className="mb-4">
-        <label
-          htmlFor="groceries"
-          className="block text-gray-400 text-sm font-bold mb-1"
-        >
-          Groceries:
-        </label>
-        <input
-          type="number"
-          id="groceries"
-          value={expenses.groceries}
-          onChange={(e) => handleChange("groceries", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="transportation"
-          className="block text-gray-400 text-sm font-bold mb-1"
-        >
-          Transportation:
-        </label>
-        <input
-          type="number"
-          id="transportation"
-          value={expenses.transportation}
-          onChange={(e) => handleChange("transportation", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="healthcare"
-          className="block text-gray-400 text-sm font-bold mb-1"
-        >
-          Healthcare:
-        </label>
-        <input
-          type="number"
-          id="healthcare"
-          value={expenses.healthcare}
-          onChange={(e) => handleChange("healthcare", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="education"
-          className="block text-gray-400 text-sm font-bold mb-1"
-        >
-          Education:
-        </label>
-        <input
-          type="number"
-          id="education"
-          value={expenses.education}
-          onChange={(e) => handleChange("education", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="entertainment"
-          className="block text-gray-400 text-sm font-bold mb-1"
-        >
-          Entertainment:
-        </label>
-        <input
-          type="number"
-          id="entertainment"
-          value={expenses.entertainment}
-          onChange={(e) => handleChange("entertainment", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <div className="mb-4">
-        <label
-          htmlFor="otherExpenses"
-          className="block text-gray-400 text-sm font-bold mb-1"
-        >
-          Other Expenses:
-        </label>
-        <input
-          type="number"
-          id="otherExpenses"
-          value={expenses.otherExpenses}
-          onChange={(e) => handleChange("otherExpenses", e.target.value)}
-          className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        />
-      </div>
-      <button
-        type="submit"
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full"
-      >
-        Save Expenses
-      </button>
-    </form>
+          Save Expenses
+        </button>
+      </form>
+    </div>
   );
 };
 

@@ -1,40 +1,17 @@
+// src/models/AssetsAndInvestments.js
 import mongoose from "mongoose";
 
-const incomeSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  salary: {
-    type: Number,
-    default: 0,
-  },
-  businessIncome: {
-    type: Number,
-    default: 0,
-  },
-  rentalIncome: {
-    type: Number,
-    default: 0,
-  },
-  dividends: {
-    type: Number,
-    default: 0,
-  },
-  otherSources: {
-    type: Number,
-    default: 0,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+const assetsAndInvestmentsSchema = new mongoose.Schema({
+  realEstate: { type: Number, default: 0 },
+  stocksBonds: { type: Number, default: 0 },
+  retirementAccounts: { type: Number, default: 0 },
+  businessOwnership: { type: Number, default: 0 },
+  savingsAccount: { type: Number, default: 0 },
+  otherInvestments: { type: Number, default: 0 },
 });
 
-const IncomeDetails = mongoose.model("IncomeDetails", incomeSchema);
-export default IncomeDetails;
+const AssetsAndInvestments =
+  mongoose.models.AssetsAndInvestments ||
+  mongoose.model("AssetsAndInvestments", assetsAndInvestmentsSchema);
+
+export default AssetsAndInvestments;

@@ -1,14 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { message } from "antd";
 
-const AssetsAndInvestments = () => {
+const AssetsAndInvestments = ({ month }) => {
   const { loggedUser } = useAuth();
-
-  const userId = loggedUser.id;
-
-  console.log("logged", loggedUser?.id);
-
+  const userId = loggedUser?.id;
   const [assets, setAssets] = useState({
     realEstate: 0,
     stocksBonds: 0,
@@ -19,48 +16,34 @@ const AssetsAndInvestments = () => {
   });
 
   const handleInputChange = (e, field) => {
-    let value = e.target.value;
-    if (value) {
-      value = value.replace(/[^\d.]/g, "");
-    }
-    if (
-      value &&
-      value.startsWith("0") &&
-      !value.startsWith("0.") &&
-      value.length > 1
-    ) {
-      value = value.substring(1);
-    }
-    setAssets({ ...assets, [field]: value === "" ? 0 : parseFloat(value) });
+    const value = parseInt(e.target.value, 10) || 0; // Simple and safer parsing. Defaults to 0 if invalid.
+    setAssets({ ...assets, [field]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem("token"); // Retrieve token from localStorage
+    const token = localStorage.getItem("token");
     if (!token) {
-      console.error("No token found. User might not be logged in.");
+      message.error("You are not logged in."); // Improved feedback to the user.
       return;
     }
-
     try {
-      const response = await axios.post(
-        `http://localhost:5000/api/data/portfolio/${userId}`,
-        assets,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include token in Authorization header
-          },
-        }
+      const response = await axios.put(
+        // Changed to PUT to update existing records
+        `http://localhost:5000/api/data/portfolio/${userId}/${month}`,
+        { ...assets },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       console.log("Portfolio saved successfully:", response.data);
+      message.success("Assets And Investments saved successfully!");
     } catch (error) {
-      console.error("Error saving portfolio:", error.response?.data || error);
+      console.error("Error saving portfolio:", error);
+      message.error("Failed to save portfolio. Please try again."); //Improved feedback.
     }
   };
 
   return (
-    <div className="  flex justify-center flex-col sm:w-96  mx-auto bg-gray-800 p-6 rounded shadow-md">
+    <div className="flex flex-col sm:w-96 mx-auto bg-gray-800 p-6 rounded shadow-md">
       <h2 className="text-xl font-bold text-gray-200 mb-4">
         Assets and Investments
       </h2>
@@ -76,7 +59,6 @@ const AssetsAndInvestments = () => {
             onChange={(e) => handleInputChange(e, "realEstate")}
           />
         </div>
-        {/* Repeat similar input fields for other asset types */}
         <div className="mb-2">
           <label className="block text-gray-400 text-sm font-bold mb-1">
             Stocks/Bonds:
@@ -130,6 +112,17 @@ const AssetsAndInvestments = () => {
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             value={assets.otherInvestments}
             onChange={(e) => handleInputChange(e, "otherInvestments")}
+          />
+        </div>
+        <div className="mb-2">
+          <label className="block text-gray-400 text-sm font-bold mb-1">
+            Month
+          </label>
+          <input
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-green-5 capitalize leading-tight focus:outline-none focus:shadow-outline"
+            type="text"
+            value={month}
+            disabled
           />
         </div>
         <button

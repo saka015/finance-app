@@ -54,14 +54,14 @@ const Login = () => {
   }, [loggedUser, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center">Sign In</h2>
+    <div className="min-h-screen flex items-center justify-center bg-green-8">
+      <div className="bg-main p-8 rounded shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-4 text-center text-white">Sign In</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label
               htmlFor="email"
-              className="block text-gray-700 font-bold mb-2"
+              className="block text-gray-300 font-bold mb-2"
             >
               Email Address
             </label>
@@ -81,7 +81,7 @@ const Login = () => {
           <div className="mb-4">
             <label
               htmlFor="password"
-              className="block text-gray-700 font-bold mb-2"
+              className="block text-gray-300 font-bold mb-2"
             >
               Password
             </label>

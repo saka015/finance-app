@@ -4,40 +4,47 @@ import dataController from "../controllers/data.controller.js";
 
 const dataRoute = express.Router();
 
-dataRoute.post(
-  "/portfolio/:userId",
+const errorHandler = (err, req, res, next) => {
+  console.error(err.stack); // Log the error for debugging
+  res.status(500).json({ error: "Internal Server Error" });
+};
+
+dataRoute.put(
+  "/portfolio/:userId/:month",
   auth.isLoggedIn,
   dataController.savePortfolio
 );
-dataRoute.post(
-  "/expenses/:userId",
+dataRoute.put(
+  "/expenses/:userId/:month",
   auth.isLoggedIn,
   dataController.saveExpenseDetails
 );
-dataRoute.post(
-  "/income/:userId",
+dataRoute.put(
+  "/income/:userId/:month",
   auth.isLoggedIn,
   dataController.saveIncomeDetails
 );
-dataRoute.post(
-  "/insurance/:userId",
+dataRoute.put(
+  "/insurance/:userId/:month",
   auth.isLoggedIn,
   dataController.saveInsuranceDetails
 );
-dataRoute.post(
-  "/liabilities/:userId",
+dataRoute.put(
+  "/liabilities/:userId/:month",
   auth.isLoggedIn,
   dataController.saveLiabilitiesAndDebts
 );
-dataRoute.post(
-  "/retirement/:userId",
+dataRoute.put(
+  "/retirement/:userId/:month",
   auth.isLoggedIn,
   dataController.saveRetirementPlan
 );
-dataRoute.post(
-  "/emergencyFund/:userId",
+dataRoute.put(
+  "/emergencyFund/:userId/:month",
   auth.isLoggedIn,
   dataController.saveEmergencyFund
 );
+
+dataRoute.use(errorHandler);
 
 export default dataRoute;

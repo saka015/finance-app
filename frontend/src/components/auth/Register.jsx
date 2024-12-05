@@ -56,12 +56,12 @@ const Register = () => {
   }, [loggedUser, navigate]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-4 text-center">Sign Up</h2>
+    <div className="min-h-screen flex items-center justify-center bg-green-8">
+      <div className="bg-main p-8 rounded shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-4 text-center text-white">Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="name" className="block text-gray-700 font-bold mb-2">Name</label>
+            <label htmlFor="name" className="block text-gray-300 font-bold mb-2">Name</label>
             <input
               type="text"
               id="name"
@@ -74,7 +74,7 @@ const Register = () => {
             {errors.name && <p className="text-red-500 text-xs italic">{errors.name}</p>}
           </div>
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 font-bold mb-2">Email</label>
+            <label htmlFor="email" className="block text-gray-300 font-bold mb-2">Email</label>
             <input
               type="email"
               id="email"
@@ -87,7 +87,7 @@ const Register = () => {
             {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
           </div>
           <div className="mb-4">
-            <label htmlFor="password" className="block text-gray-700 font-bold mb-2">Password</label>
+            <label htmlFor="password" className="block text-gray-300 font-bold mb-2">Password</label>
             <input
               type="password"
               id="password"
